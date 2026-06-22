@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api' })
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api' })
 
 export const getMe = (creator_id) => api.get(`/auth/me?creator_id=${creator_id}`)
 export const getDashboard = (creator_id) => api.get(`/dashboard?creator_id=${creator_id}`)
