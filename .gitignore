@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Build output
+dist/
+dist-ssr/
+
+# Uploads & temp files
+uploads/
+*.mp4
+*.mp3
+*.webm
+
+# Sensitive files
+*.json.bak
+client_secret_*.json
+tokens/
+
+# Compiled scripts (timestamped)
+backend/1*.js
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Binary tools
+backend/bin/
