@@ -14,8 +14,8 @@ ffmpeg.setFfmpegPath(ffmpegStatic)
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const TMP_DIR = path.join(__dirname, '../../../../uploads/shorts_tmp')
-const YTDLP = path.join(__dirname, '../../../../bin/yt-dlp.exe')
+const TMP_DIR = path.join(__dirname, '../../../uploads/shorts_tmp')
+const YTDLP = path.join(__dirname, '../../../bin/yt-dlp.exe')
 
 if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
 
