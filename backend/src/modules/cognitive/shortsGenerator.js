@@ -15,12 +15,34 @@ ffmpeg.setFfmpegPath(ffmpegStatic)
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const TMP_DIR = path.join(__dirname, '../../../uploads/shorts_tmp')
-const YTDLP = path.join(__dirname, '../../../bin/yt-dlp.exe')
+
+// Auto-detect OS: use .exe on Windows, download binary on Linux
+const isWindows = process.platform === 'win32'
+const YTDLP_PATH = path.join(__dirname, '../../../bin', isWindows ? 'yt-dlp.exe' : 'yt-dlp')
+
+// On Linux (Render), download yt-dlp binary if not present
+async function ensureYtDlp() {
+  if (isWindows) return YTDLP_PATH
+  if (fs.existsSync(YTDLP_PATH)) return YTDLP_PATH
+  const binDir = path.dirname(YTDLP_PATH)
+  if (!fs.existsSync(binDir)) fs.mkdirSync(binDir, { recursive: true })
+  const { default: https } = await import('https')
+  await new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(YTDLP_PATH)
+    https.get('https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp', res => {
+      res.pipe(file)
+      file.on('finish', () => { file.close(); resolve() })
+    }).on('error', reject)
+  })
+  fs.chmodSync(YTDLP_PATH, '755')
+  return YTDLP_PATH
+}
 
 if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
 
 // Get video info using yt-dlp
 async function getVideoInfo(videoUrl) {
+  const YTDLP = await ensureYtDlp()
   const { stdout } = await execFileAsync(YTDLP, [
     '--dump-json',
     '--no-playlist',
@@ -68,6 +90,7 @@ Respond ONLY with valid JSON:
 
 // Download video using yt-dlp
 async function downloadVideo(videoUrl, outputPath) {
+  const YTDLP = await ensureYtDlp()
   await execFileAsync(YTDLP, [
     '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
     '--merge-output-format', 'mp4',
